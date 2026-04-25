@@ -1,0 +1,9 @@
+.bundle/
+vendor/bundle/
+.envrc.local
+*.gem
+Gemfile.lock
+.direnv/
+.byebug_history
+result
+result-*
