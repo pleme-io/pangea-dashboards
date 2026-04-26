@@ -57,11 +57,98 @@ RSpec.describe Pangea::Dashboards::Library::Derive do
     expect(panels.map(&:title)).to eq(['Falco Events Total', 'Falco Drops Total'])
   end
 
-  it 'documents the prefix-based variant as a NotImplementedError' do
-    expect {
-      described_class.derive_panels_from_prefix(
-        row: nil, prefix: 'falco_', prometheus_url: 'http://vm:8429'
-      )
-    }.to raise_error(NotImplementedError, /not yet built/)
+  describe '.derive_panels_from_prefix' do
+    let(:fake_http) do
+      ->(url) {
+        @last_url = url
+        {
+          'status' => 'success',
+          'data' => %w[falco_events_total falco_drops_total node_cpu_seconds_total kube_pod_info]
+        }
+      }
+    end
+
+    before { described_class.clear_cache! }
+
+    it 'discovers matching metrics + emits one panel per match' do
+      builder = Pangea::Dashboards::DSL::DashboardBuilder.new(id: :test)
+      described_module = described_class
+      h = fake_http
+      builder.instance_eval do
+        row 'falco' do
+          described_module.derive_panels_from_prefix(
+            row: self,
+            prefix: 'falco_',
+            prometheus_url: 'http://vm:8429',
+            http_client: h,
+            kind: :stat
+          ) do |metric|
+            query 'A', "rate(#{metric}[5m])", datasource: 'vm'
+          end
+        end
+      end
+      dash = builder.build
+      panels = dash.rows.first.panels
+      expect(panels.map(&:id)).to eq(%i[falco_events_total falco_drops_total])
+    end
+
+    it 'caches the introspection result by URL' do
+      call_count = 0
+      counting_http = ->(url) {
+        call_count += 1
+        { 'status' => 'success', 'data' => ['x_total', 'y_total'] }
+      }
+
+      2.times do
+        builder = Pangea::Dashboards::DSL::DashboardBuilder.new(id: :test)
+        described_module = described_class
+        builder.instance_eval do
+          row 'r' do
+            described_module.derive_panels_from_prefix(
+              row: self, prefix: 'x_',
+              prometheus_url: 'http://same-url',
+              http_client: counting_http
+            ) { |m| query 'A', "rate(#{m}[5m])", datasource: 'vm' }
+          end
+        end
+      end
+      expect(call_count).to eq(1)
+    end
+
+    it 'raises IntrospectionError when no metrics match the prefix' do
+      builder = Pangea::Dashboards::DSL::DashboardBuilder.new(id: :test)
+      described_module = described_class
+      h = fake_http
+      expect {
+        builder.instance_eval do
+          row 'r' do
+            described_module.derive_panels_from_prefix(
+              row: self, prefix: 'nonexistent_',
+              prometheus_url: 'http://vm:8429',
+              http_client: h
+            ) { |m| query 'A', m, datasource: 'vm' }
+          end
+        end
+      }.to raise_error(Pangea::Dashboards::Library::Derive::IntrospectionError,
+                       /no metrics matching prefix/)
+    end
+
+    it 'raises when Prometheus returns a non-success status' do
+      bad_http = ->(_url) { { 'status' => 'error', 'error' => 'invalid query' } }
+      builder = Pangea::Dashboards::DSL::DashboardBuilder.new(id: :test)
+      described_module = described_class
+      expect {
+        builder.instance_eval do
+          row 'r' do
+            described_module.derive_panels_from_prefix(
+              row: self, prefix: 'x_',
+              prometheus_url: 'http://broken',
+              http_client: bad_http
+            ) { |m| query 'A', m, datasource: 'vm' }
+          end
+        end
+      }.to raise_error(Pangea::Dashboards::Library::Derive::IntrospectionError,
+                       /status=error/)
+    end
   end
 end

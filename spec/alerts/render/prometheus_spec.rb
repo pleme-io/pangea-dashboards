@@ -26,7 +26,7 @@ RSpec.describe Pangea::Alerts::Render::Prometheus do
     expect(rendered['metadata']['namespace']).to eq('monitoring')
     expect(rendered['metadata']['name']).to eq('rio-alerts')
     expect(rendered['spec']['groups'].first['name']).to eq('storage')
-    expect(rendered['spec']['groups'].first['rules'].first['alert']).to eq('PodOom')
+    expect(rendered['spec']['groups'].first['rules'].first['alert']).to eq('PodOOM')
   end
 
   it 'preserves labels + annotations + for from the AST' do

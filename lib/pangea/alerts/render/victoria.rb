@@ -50,9 +50,21 @@ module Pangea
           h
         end
 
-        # snake_case → CamelCase for Prometheus alertname convention.
+        # snake_case → CamelCase for the Prometheus alertname convention.
+        # Preserves common abbreviations as ALL-CAPS rather than
+        # capitalizing only the first letter (vm_disk → VMDisk, NOT VmDisk).
+        ABBREVIATIONS = %w[
+          VM CPU GPU IO ID URL URI HTTP HTTPS TLS SSL DNS API SDK
+          K8S KMS IAM ARN VPC NAT NLB ALB ELB SQS SNS S3 RDS EC2
+          DB SQL CSV JSON YAML XML HTML CSS JS TCP UDP IP ICMP MTU
+          AZ NUMA SMP MMU TLB CRD RBAC OIDC SAML JWT
+          ASG EKS ECS GKE AKS NTFY VPN WAF CDN OOM
+        ].freeze
+
+        ABBREVIATION_LOOKUP = ABBREVIATIONS.each_with_object({}) { |a, h| h[a.downcase] = a }.freeze
+
         def self.camelize(name)
-          name.split('_').map(&:capitalize).join
+          name.split('_').map { |chunk| ABBREVIATION_LOOKUP[chunk] || chunk.capitalize }.join
         end
       end
     end
