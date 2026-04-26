@@ -1,0 +1,132 @@
+{
+  "title": "rio · cluster overview",
+  "description": "",
+  "layout_type": "ordered",
+  "is_read_only": false,
+  "template_variable": [
+    {
+      "name": "namespace",
+      "prefix": "namespace",
+      "available_values": [
+
+      ],
+      "default": "*"
+    }
+  ],
+  "widget": [
+    {
+      "definition": {
+        "type": "group",
+        "title": "pods",
+        "layout_type": "ordered",
+        "widget": [
+          {
+            "definition": {
+              "type": "query_value",
+              "title": "Pods",
+              "requests": [
+                {
+                  "q": "count_not_null(avg:kubernetes.pods.running{kube_namespace:$namespace})"
+                }
+              ],
+              "autoscale": true
+            }
+          },
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Pod CPU",
+              "requests": [
+                {
+                  "q": "sum:kubernetes.cpu.usage.total{kube_namespace:$namespace} by {pod_name}",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          },
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Pod memory",
+              "requests": [
+                {
+                  "q": "sum:kubernetes.memory.working_set{kube_namespace:$namespace} by {pod_name}",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          },
+          {
+            "definition": {
+              "type": "query_value",
+              "title": "Restarts (1h)",
+              "requests": [
+                {
+                  "q": "sum:kubernetes.containers.restarts{kube_namespace:$namespace}.as_count()"
+                }
+              ],
+              "autoscale": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "definition": {
+        "type": "group",
+        "title": "nodes",
+        "layout_type": "ordered",
+        "widget": [
+          {
+            "definition": {
+              "type": "query_value",
+              "title": "Nodes",
+              "requests": [
+                {
+                  "q": "count_not_null(avg:kubernetes_state.node.count{*})"
+                }
+              ],
+              "autoscale": true
+            }
+          },
+          {
+            "definition": {
+              "type": "query_value",
+              "title": "Ready",
+              "requests": [
+                {
+                  "q": "count_not_null(avg:kubernetes_state.node.ready{*})"
+                }
+              ],
+              "autoscale": true
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "reflow_type": "auto",
+  "tags": [
+    "rio",
+    "cluster",
+    "overview"
+  ]
+}

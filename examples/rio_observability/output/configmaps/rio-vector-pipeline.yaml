@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-rio-vector-pipeline
+  namespace: observability
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/managed-by: pangea-dashboards
+data:
+  rio-vector-pipeline.json: '{"annotations":{"list":[]},"description":"","editable":true,"fiscalYearStartMonth":0,"graphTooltip":1,"id":null,"links":[],"panels":[{"id":1,"type":"row","title":"throughput","gridPos":{"h":1,"w":24,"x":0,"y":0},"collapsed":false,"panels":[]},{"id":2,"title":"Events
+    received (per source)","type":"timeseries","gridPos":{"h":8,"w":12,"x":0,"y":1},"targets":[{"refId":"A","expr":"sum
+    by (component_id) (rate(vector_component_received_events_total[5m]))","datasource":{"type":"prometheus","uid":"vm"},"legendFormat":"{{component_id}}"}],"fieldConfig":{"defaults":{"unit":"eps","custom":{"fillOpacity":10,"lineWidth":2}},"overrides":[]},"options":{"tooltip":{"mode":"multi","sort":"none"},"legend":{"displayMode":"list","placement":"bottom"}}},{"id":3,"title":"Events
+    sent (per sink)","type":"timeseries","gridPos":{"h":8,"w":12,"x":12,"y":1},"targets":[{"refId":"A","expr":"sum
+    by (component_id) (rate(vector_component_sent_events_total[5m]))","datasource":{"type":"prometheus","uid":"vm"},"legendFormat":"{{component_id}}"}],"fieldConfig":{"defaults":{"unit":"eps","custom":{"fillOpacity":10,"lineWidth":2}},"overrides":[]},"options":{"tooltip":{"mode":"multi","sort":"none"},"legend":{"displayMode":"list","placement":"bottom"}}},{"id":4,"type":"row","title":"errors","gridPos":{"h":1,"w":24,"x":0,"y":9},"collapsed":false,"panels":[]},{"id":5,"title":"Component
+    errors","type":"timeseries","gridPos":{"h":8,"w":12,"x":0,"y":10},"targets":[{"refId":"A","expr":"sum
+    by (component_id) (rate(vector_component_errors_total[5m]))","datasource":{"type":"prometheus","uid":"vm"},"legendFormat":"{{component_id}}"}],"fieldConfig":{"defaults":{"unit":"eps","custom":{"fillOpacity":10,"lineWidth":2}},"overrides":[]},"options":{"tooltip":{"mode":"multi","sort":"none"},"legend":{"displayMode":"list","placement":"bottom"}}},{"id":6,"title":"Buffer
+    usage (% of capacity)","type":"timeseries","gridPos":{"h":8,"w":12,"x":12,"y":10},"targets":[{"refId":"A","expr":"100
+    * (vector_buffer_byte_size / vector_buffer_max_byte_size)","datasource":{"type":"prometheus","uid":"vm"},"legendFormat":"{{component_id}}"}],"fieldConfig":{"defaults":{"unit":"percent","custom":{"fillOpacity":10,"lineWidth":2}},"overrides":[]},"options":{"tooltip":{"mode":"multi","sort":"none"},"legend":{"displayMode":"list","placement":"bottom"}}}],"schemaVersion":39,"tags":["rio","vector","ingest"],"templating":{"list":[]},"time":{"from":"now-1h","to":"now"},"timepicker":{},"timezone":"utc","title":"rio
+    · vector pipeline","uid":"rio-vector-pipeline","version":1}'

@@ -1,0 +1,101 @@
+{
+  "title": "rio · victoria-metrics health",
+  "description": "",
+  "layout_type": "ordered",
+  "is_read_only": false,
+  "template_variable": [
+
+  ],
+  "widget": [
+    {
+      "definition": {
+        "type": "group",
+        "title": "ingestion",
+        "layout_type": "ordered",
+        "widget": [
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Samples ingested per second",
+              "requests": [
+                {
+                  "q": "sum:victoriametrics.rows_inserted.total{*}.as_rate()",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          },
+          {
+            "definition": {
+              "type": "query_value",
+              "title": "Active series",
+              "requests": [
+                {
+                  "q": "sum:victoriametrics.active_series{*}"
+                }
+              ],
+              "autoscale": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "definition": {
+        "type": "group",
+        "title": "storage",
+        "layout_type": "ordered",
+        "widget": [
+          {
+            "definition": {
+              "type": "query_value",
+              "title": "Disk usage",
+              "requests": [
+                {
+                  "q": "avg:victoriametrics.data.size_bytes{*}"
+                }
+              ],
+              "custom_unit": "bytes"
+            }
+          },
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Compactions per minute",
+              "requests": [
+                {
+                  "q": "sum:victoriametrics.partial_merges.total{*}.as_rate()",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "reflow_type": "auto",
+  "tags": [
+    "rio",
+    "victoria-metrics",
+    "storage"
+  ]
+}

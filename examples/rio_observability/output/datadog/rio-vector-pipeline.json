@@ -1,0 +1,119 @@
+{
+  "title": "rio · vector pipeline",
+  "description": "",
+  "layout_type": "ordered",
+  "is_read_only": false,
+  "template_variable": [
+
+  ],
+  "widget": [
+    {
+      "definition": {
+        "type": "group",
+        "title": "throughput",
+        "layout_type": "ordered",
+        "widget": [
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Events received (per source)",
+              "requests": [
+                {
+                  "q": "sum:vector.component.received_events.total{*} by {component_id}.as_rate()",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          },
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Events sent (per sink)",
+              "requests": [
+                {
+                  "q": "sum:vector.component.sent_events.total{*} by {component_id}.as_rate()",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "definition": {
+        "type": "group",
+        "title": "errors",
+        "layout_type": "ordered",
+        "widget": [
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Component errors",
+              "requests": [
+                {
+                  "q": "sum:vector.component.errors.total{*} by {component_id}.as_rate()",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          },
+          {
+            "definition": {
+              "type": "timeseries",
+              "title": "Buffer usage (% of capacity)",
+              "requests": [
+                {
+                  "q": "100 * (avg:vector.buffer.byte_size{*} by {component_id} / avg:vector.buffer.max_byte_size{*} by {component_id})",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "scale": "linear",
+                "include_zero": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "reflow_type": "auto",
+  "tags": [
+    "rio",
+    "vector",
+    "ingest"
+  ]
+}

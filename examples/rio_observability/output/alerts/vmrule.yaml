@@ -1,0 +1,48 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: rio-observability-alerts
+  namespace: observability
+  labels:
+    cluster: rio
+spec:
+  groups:
+  - name: vector
+    interval: 30s
+    rules:
+    - alert: VectorHighErrorRate
+      expr: sum(rate(vector_component_errors_total[5m])) > 5
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Vector ingest pipeline errors elevated
+        description: Vector reporting >5 component errors/sec for 5m. Check vector
+          pod logs.
+        runbook_url: https://runbooks.pleme.io/rio/vector-errors
+  - name: storage
+    interval: 30s
+    rules:
+    - alert: VmDiskCritical
+      expr: vm_data_size_bytes > 28 * 1024 * 1024 * 1024
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary: VictoriaMetrics disk near capacity
+        description: 'VMSingle data dir > 28 GiB (cap: 30 GiB). Retention may start
+          dropping data.'
+        runbook_url: https://runbooks.pleme.io/rio/vm-disk-full
+  - name: cluster
+    interval: 30s
+    rules:
+    - alert: PodsNotReady
+      expr: sum by (namespace) (kube_pod_status_ready{condition="false"}) > 0
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: Pods not ready in {{ $labels.namespace }}
+        description: "{{ $value }} pods unready for 15m in {{ $labels.namespace }}."
+        runbook_url: https://runbooks.pleme.io/rio/pods-not-ready

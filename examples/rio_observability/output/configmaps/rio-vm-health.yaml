@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-rio-vm-health
+  namespace: observability
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/managed-by: pangea-dashboards
+data:
+  rio-vm-health.json: '{"annotations":{"list":[]},"description":"","editable":true,"fiscalYearStartMonth":0,"graphTooltip":1,"id":null,"links":[],"panels":[{"id":1,"type":"row","title":"ingestion","gridPos":{"h":1,"w":24,"x":0,"y":0},"collapsed":false,"panels":[]},{"id":2,"title":"Samples
+    ingested per second","type":"timeseries","gridPos":{"h":8,"w":12,"x":0,"y":1},"targets":[{"refId":"A","expr":"sum(rate(vm_rows_inserted_total[5m]))","datasource":{"type":"prometheus","uid":"vm"}}],"fieldConfig":{"defaults":{"unit":"sps","custom":{"fillOpacity":10,"lineWidth":2}},"overrides":[]},"options":{"tooltip":{"mode":"multi","sort":"none"},"legend":{"displayMode":"list","placement":"bottom"}}},{"id":3,"title":"Active
+    series","type":"stat","gridPos":{"h":8,"w":6,"x":12,"y":1},"targets":[{"refId":"A","expr":"sum(vm_cache_entries{type=\"storage/tsid\"})","datasource":{"type":"prometheus","uid":"vm"}}],"fieldConfig":{"defaults":{},"overrides":[]},"options":{"reduceOptions":{"calcs":["lastNotNull"],"fields":"","values":false},"textMode":"auto"}},{"id":4,"type":"row","title":"storage","gridPos":{"h":1,"w":24,"x":0,"y":9},"collapsed":false,"panels":[]},{"id":5,"title":"Disk
+    usage","type":"stat","gridPos":{"h":8,"w":6,"x":0,"y":10},"targets":[{"refId":"A","expr":"vm_data_size_bytes","datasource":{"type":"prometheus","uid":"vm"}}],"fieldConfig":{"defaults":{"unit":"bytes","thresholds":{"mode":"absolute","steps":[{"color":"green","value":null},{"color":"yellow","value":25000000000.0},{"color":"red","value":28000000000.0}]}},"overrides":[]},"options":{"reduceOptions":{"calcs":["lastNotNull"],"fields":"","values":false},"textMode":"auto"}},{"id":6,"title":"Compactions
+    per minute","type":"timeseries","gridPos":{"h":8,"w":12,"x":6,"y":10},"targets":[{"refId":"A","expr":"rate(vm_partial_merges_total[1m])","datasource":{"type":"prometheus","uid":"vm"}}],"fieldConfig":{"defaults":{"custom":{"fillOpacity":10,"lineWidth":2}},"overrides":[]},"options":{"tooltip":{"mode":"multi","sort":"none"},"legend":{"displayMode":"list","placement":"bottom"}}}],"schemaVersion":39,"tags":["rio","victoria-metrics","storage"],"templating":{"list":[]},"time":{"from":"now-1h","to":"now"},"timepicker":{},"timezone":"utc","title":"rio
+    · victoria-metrics health","uid":"rio-vm-health","version":1}'
