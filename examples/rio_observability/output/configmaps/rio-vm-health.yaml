@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-dashboard-rio-vm-health
-  namespace: observability
+  namespace: monitoring
   labels:
     grafana_dashboard: '1'
     app.kubernetes.io/managed-by: pangea-dashboards

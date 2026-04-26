@@ -3,7 +3,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: rio-observability-alerts
-  namespace: observability
+  namespace: monitoring
   labels:
     cluster: rio
 spec:

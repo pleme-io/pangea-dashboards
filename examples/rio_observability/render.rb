@@ -192,7 +192,7 @@ end
 
 # ── 4. Alert rules — vmalert + ntfy via severity routing ────────────────
 alerts = synth.alerts(:rio_observability_alerts) do
-  namespace 'observability'
+  namespace 'monitoring'
   labels(cluster: 'rio')
 
   group 'vector' do
@@ -250,7 +250,7 @@ FileUtils.mkdir_p(File.join(out_dir, 'configmaps'))
     'kind' => 'ConfigMap',
     'metadata' => {
       'name' => "grafana-dashboard-#{dash.uid}",
-      'namespace' => 'observability',
+      'namespace' => 'monitoring',
       'labels' => {
         'grafana_dashboard' => '1',
         'app.kubernetes.io/managed-by' => 'pangea-dashboards'

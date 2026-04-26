@@ -3,7 +3,7 @@ apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
 metadata:
   name: rio-observability-alerts
-  namespace: observability
+  namespace: monitoring
   labels:
     cluster: rio
 spec:
