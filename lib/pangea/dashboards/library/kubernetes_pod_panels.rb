@@ -39,48 +39,52 @@ module Pangea
         # Pod count — one stat panel.
         def self.add_count(row, namespace:, deployment: nil, pod_regex: nil, datasource: 'vm')
           selector = label_selector(namespace: namespace, deployment: deployment, pod_regex: pod_regex)
+          dd_sel   = dd_selector(namespace: namespace, deployment: deployment)
           row.panel :pod_count, kind: :stat do
             title 'Pods'
             query 'A', %(count(kube_pod_info{#{selector}})), datasource: datasource,
-                  dd_query: %(count_not_null(avg:kubernetes.pods.running{#{dd_selector(namespace: namespace, deployment: deployment)}}))
+                  dd_query: %(count_not_null(avg:kubernetes.pods.running{#{dd_sel}}))
           end
         end
 
         # Per-pod CPU usage — timeseries.
         def self.add_cpu(row, namespace:, deployment: nil, pod_regex: nil, datasource: 'vm')
           selector = label_selector(namespace: namespace, deployment: deployment, pod_regex: pod_regex)
+          dd_sel   = dd_selector(namespace: namespace, deployment: deployment)
           row.panel :pod_cpu, kind: :timeseries do
             title 'Pod CPU'
             unit 'percent'
             query 'A',
                   %(sum by (pod) (rate(container_cpu_usage_seconds_total{#{selector}}[5m])) * 100),
                   datasource: datasource, legend: '{{pod}}',
-                  dd_query: %(sum:kubernetes.cpu.usage.total{#{dd_selector(namespace: namespace, deployment: deployment)}} by {pod_name})
+                  dd_query: %(sum:kubernetes.cpu.usage.total{#{dd_sel}} by {pod_name})
           end
         end
 
         # Per-pod memory — timeseries.
         def self.add_memory(row, namespace:, deployment: nil, pod_regex: nil, datasource: 'vm')
           selector = label_selector(namespace: namespace, deployment: deployment, pod_regex: pod_regex)
+          dd_sel   = dd_selector(namespace: namespace, deployment: deployment)
           row.panel :pod_memory, kind: :timeseries do
             title 'Pod memory'
             unit 'bytes'
             query 'A',
                   %(sum by (pod) (container_memory_working_set_bytes{#{selector}})),
                   datasource: datasource, legend: '{{pod}}',
-                  dd_query: %(sum:kubernetes.memory.working_set{#{dd_selector(namespace: namespace, deployment: deployment)}} by {pod_name})
+                  dd_query: %(sum:kubernetes.memory.working_set{#{dd_sel}} by {pod_name})
           end
         end
 
         # Pod restart rate over the last hour — stat.
         def self.add_restarts(row, namespace:, deployment: nil, pod_regex: nil, datasource: 'vm')
           selector = label_selector(namespace: namespace, deployment: deployment, pod_regex: pod_regex)
+          dd_sel   = dd_selector(namespace: namespace, deployment: deployment)
           row.panel :pod_restarts, kind: :stat do
             title 'Restarts (1h)'
             query 'A',
                   %(sum(increase(kube_pod_container_status_restarts_total{#{selector}}[1h]))),
                   datasource: datasource,
-                  dd_query: %(sum:kubernetes.containers.restarts{#{dd_selector(namespace: namespace, deployment: deployment)}}.as_count())
+                  dd_query: %(sum:kubernetes.containers.restarts{#{dd_sel}}.as_count())
             threshold steps: [
               { color: 'green',  value: nil },
               { color: 'yellow', value: 3 },

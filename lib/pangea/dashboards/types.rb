@@ -32,7 +32,7 @@ module Pangea
         :interval
       )
 
-      ThresholdMode = Types::Strict::String.enum('absolute', 'percentage')
+      ThresholdMode = Types::Strict::String.default('absolute').enum('absolute', 'percentage')
 
       # ── leaves ───────────────────────────────────────────────────────
       class Threshold < Dry::Struct
@@ -45,7 +45,7 @@ module Pangea
       end
 
       class ThresholdConfig < Dry::Struct
-        attribute? :mode, ThresholdMode.default('absolute')
+        attribute? :mode, ThresholdMode
         attribute  :steps, Types::Strict::Array.of(Threshold).default([].freeze)
       end
 

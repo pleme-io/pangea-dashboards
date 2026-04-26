@@ -35,6 +35,35 @@ module Pangea
         builder.build
       end
 
+      # Short-form ad-hoc dashboard wrapping any architecture result.
+      # Doesn't require the architecture to declare a `monitor` template;
+      # opens a DashboardBuilder with `result` already bound and yields it.
+      # Useful for one-off custom dashboards in workspaces where the
+      # canonical doesn't fit.
+      #
+      # Accepts EITHER a positional hash (`observe({id: 'x', ...})`) OR
+      # keyword splat (`observe(id: 'x', ...)`). The dashboard `id` is
+      # auto-derived from `result[:id]` (or `:name` fallback) prefixed
+      # with `observe_`.
+      def observe(result = nil, **kwargs, &block)
+        result_hash = result || kwargs
+        builder = Pangea::Dashboards::DSL::DashboardBuilder.new(id: derive_observe_id(result_hash))
+        builder.instance_eval(&block) if block
+        builder.build
+      end
+
+      private def derive_observe_id(result)
+        suffix = if result.respond_to?(:[]) && result[:id]
+                   result[:id]
+                 elsif result.respond_to?(:[]) && result[:name]
+                   result[:name]
+                 else
+                   'anon'
+                 end
+        :"observe_#{suffix.to_s.downcase.gsub(/[^a-z0-9_]/, '_')}"
+      end
+      public
+
       # Render a Dashboard AST to the chosen backend, emitting the
       # corresponding Pangea resource. Returns whatever the backend's
       # synth.<resource> method returns.
