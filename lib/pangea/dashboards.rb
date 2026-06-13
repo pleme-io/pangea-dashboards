@@ -21,5 +21,13 @@ module Pangea
     # Raised when the AST validation fails at render time (e.g. a panel
     # has zero queries, a variable references a non-existent datasource).
     class InvalidDashboardError < StandardError; end
+
+    # Raised by the typed datasource registry when a query's language is
+    # incompatible with its datasource (e.g. a LogsQL query targeting a
+    # PromQL/metrics datasource). Makes the wrong-datasource class of bug a
+    # render-time failure instead of a panel that errors live.
+    class DatasourceLanguageMismatchError < StandardError; end
   end
 end
+
+require 'pangea/dashboards/datasource'

@@ -2,6 +2,7 @@
 
 require 'json'
 require 'pangea/dashboards/types'
+require 'pangea/dashboards/datasource'
 
 module Pangea
   module Dashboards
@@ -116,10 +117,13 @@ module Pangea
         end
 
         def self.render_query(query)
+          # Type the datasource from the registry (not hardcoded 'prometheus')
+          # + reject a query whose language mismatches its datasource.
+          Datasources.validate_query!(query.expr, query.datasource_uid)
           h = {
             'refId'    => query.ref,
             'expr'     => query.expr,
-            'datasource' => { 'type' => 'prometheus', 'uid' => query.datasource_uid }
+            'datasource' => Datasources.ref(query.datasource_uid)
           }
           h['legendFormat'] = query.legend_format if query.legend_format
           h['instant']      = query.instant if query.instant
@@ -183,7 +187,7 @@ module Pangea
               )
             when :query
               {
-                'datasource' => { 'type' => 'prometheus', 'uid' => v.datasource_uid },
+                'datasource' => Datasources.ref(v.datasource_uid),
                 'query'      => v.query.to_s,
                 'refresh'    => 2,
                 'sort'       => 1,
@@ -214,7 +218,7 @@ module Pangea
           annotations.map do |a|
             {
               'name'       => a.name.to_s,
-              'datasource' => { 'type' => 'prometheus', 'uid' => a.datasource_uid },
+              'datasource' => Datasources.ref(a.datasource_uid),
               'expr'       => a.expr,
               'iconColor'  => a.color,
               'enable'     => a.enable
