@@ -6,8 +6,8 @@ require 'spec_helper'
 # Builds a RowBuilder, runs the component, asserts on the emitted PromQL +
 # panel shape (kind/width/height/presence/threshold).
 RSpec.describe 'Pangea::Dashboards::Library Wave 0 foundation' do
-  Lib = Pangea::Dashboards::Library
-  Theme = Pangea::Dashboards::Theme
+  Lib = Pangea::Dashboards::Library unless defined?(Lib)
+  Theme = Pangea::Dashboards::Theme unless defined?(Theme)
 
   def row_with(&blk)
     r = Pangea::Dashboards::DSL::RowBuilder.new('test')

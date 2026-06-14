@@ -17,6 +17,12 @@ require 'pangea/dashboards/library/latency_histogram_panel'
 require 'pangea/dashboards/library/top_n_table'
 require 'pangea/dashboards/library/failed_resources_table'
 
+# ── Wave 1: canonical composite rows + the keystone mixin (P0) ───────────
+require 'pangea/dashboards/library/golden_signals_row'
+require 'pangea/dashboards/library/saturation_row'
+require 'pangea/dashboards/library/controller_runtime_row'
+require 'pangea/dashboards/library/workload_overview'
+
 module Pangea
   module Dashboards
     # Reusable panel collections that any architecture's `monitor` block

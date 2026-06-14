@@ -30,12 +30,13 @@ module Pangea
         # title/legend/id: cosmetic overrides. legend may use {{q}} for the
         #                  quantile token and {{label}} for grouped labels.
         def self.add(row, datasource:, bucket_metric:, group_by: [], quantiles: [0.5, 0.95, 0.99],
-                     window: '5m', unit: 's', selector: nil, title: nil, legend: nil, id: nil)
+                     window: '5m', unit: 's', selector: nil, title: nil, legend: nil, id: nil, width: nil)
           validate!(datasource: datasource, bucket_metric: bucket_metric, quantiles: quantiles)
           pid = id || :"latency_#{slug(bucket_metric)}"
           ttl = title || default_title(bucket_metric)
           group_legend = Array(group_by).compact.map { |l| "{{#{l}}}" }.join('/')
-          row.panel pid, kind: :timeseries, width: Theme.half, height: Theme::TS_H do
+          width ||= Theme.half
+          row.panel pid, kind: :timeseries, width: width, height: Theme::TS_H do
             title ttl
             unit unit
             min 0

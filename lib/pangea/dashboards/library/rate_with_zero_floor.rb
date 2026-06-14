@@ -32,7 +32,7 @@ module Pangea
         # title / legend / id: cosmetic overrides
         def self.add(row, datasource:, counter_metric:, group_by: [], selector: nil,
                      window: '5m', unit: 'reqps', presence: :event_driven,
-                     kind: :timeseries, title: nil, legend: nil, id: nil)
+                     kind: :timeseries, title: nil, legend: nil, id: nil, width: nil)
           validate!(datasource: datasource, counter_metric: counter_metric, kind: kind)
           expr = Floor.zero(Promql.sum_rate(metric: counter_metric, window: window,
                                              group_by: group_by, selector: selector))
@@ -40,7 +40,7 @@ module Pangea
           ttl  = title || default_title(counter_metric, group_by)
           leg  = legend || default_legend(group_by)
           height = kind == :stat ? Theme::STAT_H : Theme::TS_H
-          width  = kind == :stat ? Theme.third : Theme.half
+          width  ||= (kind == :stat ? Theme.third : Theme.half)
           row.panel pid, kind: kind, width: width, height: height do
             title ttl
             unit unit
