@@ -23,6 +23,38 @@ require 'pangea/dashboards/library/saturation_row'
 require 'pangea/dashboards/library/controller_runtime_row'
 require 'pangea/dashboards/library/workload_overview'
 
+# ── Wave 2: homeostasis trio + attribution + liveness (P1/P2) ───────────
+require 'pangea/dashboards/library/util_setpoint_band'
+require 'pangea/dashboards/library/floor_ceiling_envelope'
+require 'pangea/dashboards/library/at_ceiling_defect_tile'
+require 'pangea/dashboards/library/per_namespace_breakdown_row'
+require 'pangea/dashboards/library/build_info_liveness'
+require 'pangea/dashboards/library/stat_strip'
+require 'pangea/dashboards/library/red_sli_gauge_strip'
+require 'pangea/dashboards/library/replication_health_row'
+require 'pangea/dashboards/library/go_process_use_row'
+require 'pangea/dashboards/library/by_phase_strip'
+require 'pangea/dashboards/library/allocatable_vs_requested_panel'
+require 'pangea/dashboards/library/capacity_headroom_stat'
+require 'pangea/dashboards/library/shadow_live_posture_row'
+
+# ── Wave 3/4: greenfield gaps + long-tail + security tier (P1/P2) ───────
+require 'pangea/dashboards/library/flux_reconcile_strip'
+require 'pangea/dashboards/library/webhook_latency_heatmap'
+require 'pangea/dashboards/library/red_component_throughput_row'
+require 'pangea/dashboards/library/autoscaler_pool_strip'
+require 'pangea/dashboards/library/slo_burn_rate_row'
+require 'pangea/dashboards/library/quota_pct_samba_row'
+require 'pangea/dashboards/library/alerts/workload_baseline'
+require 'pangea/dashboards/library/alerts/gateway_log_forwarding_target'
+
+# ── Wave 4 capstones: the full-dashboard mixins (compose the above) ──────
+require 'pangea/dashboards/library/controller_runtime_dashboard'
+require 'pangea/dashboards/library/log_explorer_dashboard'
+
+# ── the self-describing catalog (loaded last; sees every component) ──────
+require 'pangea/dashboards/library/catalog'
+
 module Pangea
   module Dashboards
     # Reusable panel collections that any architecture's `monitor` block

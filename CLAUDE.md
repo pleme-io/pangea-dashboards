@@ -52,6 +52,31 @@ lib/
                                       → adds .dashboard / .render_dashboard to synth
 ```
 
+## The component library — compose, don't re-author
+
+`lib/pangea/dashboards/library/` is the comprehensive, type-strict, reusable
+component set (`Pangea::Dashboards::Library::*`), absorbed from every recurring
+dashboard shape across pleme-io + akeylesslabs + akeyless-community. **Authoring
+a dashboard is configuring components, never re-assembling panels.** Full
+catalog (two axes: `layer` × `tier`, 31 components), interfaces, and the
+consume-from-a-`monitor`-block pattern: **[`docs/COMPONENT-LIBRARY.md`](./docs/COMPONENT-LIBRARY.md)**.
+
+- `WorkloadOverview.build(…)` / `.compose(builder, …)` — THE KEYSTONE: a whole
+  service dashboard (presence→status→golden→resources→logs) in one call.
+- `GoldenSignalsRow` (RED) · `SaturationRow` (USE) · `ControllerRuntimeRow` /
+  `ControllerRuntimeDashboard` (kubebuilder) · `SloBurnRateRow` (SLO burn) ·
+  `LogExplorerDashboard` · plus the homeostasis/attribution/liveness/strip atoms.
+- Shared primitives every component consumes: `Theme` (widths/heights/thresholds),
+  `Library::Floor.zero` (`or vector(0)`), `Library::Promql` (typed PromQL).
+- `Library::Catalog` is the **self-describing index** — `Catalog.by_tier('data')`,
+  `Catalog.by_layer(:composite_row)`, `Catalog.coverage`. `spec/library/catalog_spec.rb`
+  fails if a component isn't registered or a `(layer, tier)` cell is uncovered.
+
+**Adding a component:** drop `lib/pangea/dashboards/library/<snake>.rb` (a
+class-method module taking a RowBuilder + typed kwargs, consuming Theme/Promql/
+Floor, with `validate!`), `require` it in `library.rb`, add a `Catalog::ENTRY`,
+and a `spec/library/<snake>_spec.rb` asserting the emitted PromQL + panel shape.
+
 ## Adding a new panel kind
 
 1. Add the kind to `Pangea::Dashboards::Types::PanelKind` enum (lib/pangea/dashboards/types.rb).
