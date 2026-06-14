@@ -39,6 +39,11 @@ module Pangea
       def known?(uid) = registry.key?(uid)
       def [](uid)     = registry[uid]
 
+      # The query language of a datasource (:promql / :logsql). :promql is the
+      # conservative default for an unregistered uid (so the Health probe treats
+      # an unknown datasource as a metric source unless told otherwise).
+      def query_lang(uid) = registry[uid]&.query_lang || :promql
+
       # Template-variable datasource refs ("$datasource", "${ds}") are resolved
       # by Grafana at runtime — passed through untyped.
       def variable?(uid) = uid.to_s.start_with?('$')

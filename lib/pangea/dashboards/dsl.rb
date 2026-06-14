@@ -121,13 +121,14 @@ module Pangea
         def options(opts);  @options = @options.merge(opts); end
 
         def query(ref, expr, datasource: nil, datasource_uid: nil,
-                  legend: nil, instant: false, dd_query: nil, hide: false)
+                  legend: nil, instant: false, dd_query: nil, hide: false,
+                  presence: :continuous)
           ds = datasource_uid || datasource
           raise ArgumentError, "panel #{@id.inspect} query #{ref.inspect}: datasource: or datasource_uid: required" unless ds
           @queries << Types::Query.new(
             ref: ref, expr: expr, datasource_uid: ds,
             legend_format: legend, instant: instant,
-            dd_query: dd_query, hide: hide
+            dd_query: dd_query, hide: hide, presence: presence
           )
         end
 

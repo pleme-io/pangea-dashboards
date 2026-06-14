@@ -66,6 +66,11 @@ module Pangea
         # UntranslatableQueryError on PromQL-only expr without this.
         attribute? :dd_query, Types::Strict::String.optional
         attribute? :hide, Types::Strict::Bool.default(false)
+        # Presence class for the Health probe (the runtime broken-vs-idle gate):
+        #   :continuous   — emitted whenever the component runs; no-data ⇒ broken.
+        #   :event_driven — emitted on activity; the series exists (at 0) if wired.
+        #   :conditional  — may be legitimately absent (a per-workload metric).
+        attribute? :presence, Types::Strict::Symbol.default(:continuous).enum(:continuous, :event_driven, :conditional)
       end
 
       class Panel < Dry::Struct
