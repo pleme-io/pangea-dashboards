@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pangea/dashboards/theme'
+require 'pangea/dashboards/library/floor'
 
 module Pangea
   module Dashboards
@@ -82,10 +83,8 @@ module Pangea
 
         # Append `or vector(0)` unless the expr already guarantees a value, so
         # a never-fired defect reads a green 0 instead of ambiguous no-data.
-        def self.ensure_zero_floor(expr)
-          return expr if expr.include?('vector(') || expr.strip.start_with?('absent')
-          "#{expr} or vector(0)"
-        end
+        # Delegates to the shared Library::Floor primitive (solve-once).
+        def self.ensure_zero_floor(expr) = Floor.zero(expr)
 
         def self.validate!(signals:, datasource:)
           raise ArgumentError, 'StatusOverview: signals must be a non-empty Array' \
