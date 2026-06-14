@@ -104,7 +104,9 @@ module Pangea
           @max         = opts[:max]
           @decimals    = opts[:decimals]
           @width       = opts.fetch(:width, default_width(kind))
-          @height      = opts.fetch(:height, 8)
+          @height      = opts.fetch(:height, default_height(kind))
+          @display     = opts.fetch(:display, :auto)
+          @graph       = opts.fetch(:graph, :auto)
           @queries     = []
           @thresholds  = Types::ThresholdConfig.new
           @options     = opts.fetch(:options, {})
@@ -118,6 +120,8 @@ module Pangea
         def decimals(d);    @decimals = d; end
         def width(w);       @width = w; end
         def height(h);      @height = h; end
+        def display(m);     @display = m; end
+        def graph(g);       @graph = g; end
         def options(opts);  @options = @options.merge(opts); end
 
         def query(ref, expr, datasource: nil, datasource_uid: nil,
@@ -144,7 +148,8 @@ module Pangea
             id: @id, kind: @kind, title: @title, description: @description,
             unit: @unit, min: @min, max: @max, decimals: @decimals,
             queries: @queries, thresholds: @thresholds,
-            width: @width, height: @height, options: @options
+            width: @width, height: @height, display_mode: @display, graph: @graph,
+            options: @options
           )
         end
 
@@ -157,6 +162,20 @@ module Pangea
           when :table, :heatmap then 24
           when :text then 8
           else 12
+          end
+        end
+
+        # Role-based heights — the heart of a tidy grid. Stats are compact
+        # tiles (a single number deserves one band of height, not a void);
+        # time-series get room for the trend; tables a few rows. Uniform
+        # heights per role make rows align cleanly (Gestalt: alignment).
+        def default_height(kind)
+          case kind
+          when :stat, :gauge then 4
+          when :timeseries, :pie then 8
+          when :table, :heatmap then 9
+          when :text then 3
+          else 8
           end
         end
       end

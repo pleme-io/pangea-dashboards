@@ -86,6 +86,20 @@ module Pangea
         attribute? :thresholds, ThresholdConfig.default { ThresholdConfig.new }
         attribute? :width, Types::Strict::Integer.default(12)
         attribute? :height, Types::Strict::Integer.default(8)
+        # Visual emphasis for stat/gauge panels — maps to Grafana's stat
+        # `colorMode`. Preattentive processing: a `:background` tile floods
+        # the whole cell with the threshold colour, so a red problem is seen
+        # before it is read. `:value` colours just the number (calmer, for
+        # neutral counts); `:none` is uncoloured. Default `:auto` lets the
+        # renderer choose by role. Ignored by non-stat kinds.
+        # NOTE: named `display_mode`, NOT `display` — `display` collides with
+        # Ruby's built-in Object#display (prints to stdout, returns nil), which
+        # would shadow the Dry::Struct reader and silently return nil.
+        attribute? :display_mode, Types::Strict::Symbol.default(:auto).enum(:auto, :none, :value, :background, :background_solid)
+        # Graph sparkline behind a stat value — `:area` draws a trend
+        # sparkline (Tufte: data-rich small multiple), `:none` is a bare
+        # number. Default `:auto` (renderer chooses by role).
+        attribute? :graph, Types::Strict::Symbol.default(:auto).enum(:auto, :none, :area)
         # Backend-specific overrides. Renderers may consume keys they
         # know about (`grafana: { reduceOptions: ... }`,
         # `datadog: { precision: 2 }`) and ignore the rest.

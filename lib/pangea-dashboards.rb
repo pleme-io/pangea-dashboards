@@ -5,6 +5,7 @@ require 'pangea-dashboards/version'
 
 # Dashboards: typed AST + Grafana/Datadog renderers + DSL + composition.
 require 'pangea/dashboards'
+require 'pangea/dashboards/theme'
 require 'pangea/dashboards/types'
 require 'pangea/dashboards/dsl'
 require 'pangea/dashboards/health'

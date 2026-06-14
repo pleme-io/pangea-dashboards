@@ -139,7 +139,19 @@ module Pangea
           defaults['decimals'] = panel.decimals if panel.decimals
 
           if panel.kind == :timeseries
-            defaults['custom'] = { 'fillOpacity' => 10, 'lineWidth' => 2 }
+            # Calm, legible trend lines: a soft gradient fill (depth without
+            # ink-clutter — Tufte), 2px lines, no point clutter, a subtle
+            # right-axis-free look. Uniform across every series so the eye
+            # compares shape, not styling (Gestalt: similarity).
+            defaults['custom'] = {
+              'fillOpacity'       => 12,
+              'gradientMode'      => 'opacity',
+              'lineWidth'         => 2,
+              'showPoints'        => 'never',
+              'lineInterpolation' => 'linear',
+              'pointSize'         => 5,
+              'axisBorderShow'    => false
+            }
           end
 
           unless panel.thresholds.steps.empty?
@@ -157,15 +169,58 @@ module Pangea
         def self.render_options(panel)
           case panel.kind
           when :stat
-            { 'reduceOptions' => { 'calcs' => ['lastNotNull'], 'fields' => '', 'values' => false }, 'textMode' => 'auto' }
+            {
+              'reduceOptions' => { 'calcs' => ['lastNotNull'], 'fields' => '', 'values' => false },
+              'textMode'      => 'auto',
+              'justifyMode'   => 'auto',
+              'wideLayout'    => true,
+              # display → colorMode (preattentive: a coloured tile is seen
+              # before it is read); graph → graphMode (a trend sparkline
+              # behind the number — data-rich, Tufte).
+              'colorMode'     => stat_color_mode(panel),
+              'graphMode'     => stat_graph_mode(panel)
+            }
           when :gauge
             { 'reduceOptions' => { 'calcs' => ['lastNotNull'], 'fields' => '', 'values' => false } }
           when :timeseries
-            { 'tooltip' => { 'mode' => 'multi', 'sort' => 'none' }, 'legend' => { 'displayMode' => 'list', 'placement' => 'bottom' } }
+            # Legend as a TABLE with last/max/mean — a legend should inform,
+            # not just label. Bottom placement keeps the plot dominant.
+            {
+              'tooltip' => { 'mode' => 'multi', 'sort' => 'desc' },
+              'legend'  => {
+                'displayMode' => 'table',
+                'placement'   => 'bottom',
+                'calcs'       => %w[lastNotNull max mean]
+              }
+            }
           when :pie
-            { 'reduceOptions' => { 'calcs' => ['lastNotNull'], 'fields' => '', 'values' => false }, 'legend' => { 'displayMode' => 'list' } }
+            { 'reduceOptions' => { 'calcs' => ['lastNotNull'], 'fields' => '', 'values' => false },
+              'legend' => { 'displayMode' => 'table', 'placement' => 'right', 'values' => %w[value percent] } }
           else
             {}
+          end
+        end
+
+        # Stat colorMode from the typed `display`. `:auto` colours the value
+        # (calm but informative); `:background` floods the tile (bold status).
+        def self.stat_color_mode(panel)
+          case panel.display_mode
+          when :background then 'background'
+          when :background_solid then 'background_solid'
+          when :none then 'none'
+          when :value then 'value'
+          else 'value' # :auto
+          end
+        end
+
+        # Stat graphMode from the typed `graph`. `:auto` → a sparkline UNLESS
+        # the panel is a single instant value (a one-point sparkline is noise).
+        def self.stat_graph_mode(panel)
+          case panel.graph
+          when :area then 'area'
+          when :none then 'none'
+          else
+            panel.queries.any? && panel.queries.all?(&:instant) ? 'none' : 'area'
           end
         end
 

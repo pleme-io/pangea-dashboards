@@ -4,6 +4,7 @@ require 'pangea/dashboards/library/kubernetes_pod_panels'
 require 'pangea/dashboards/library/derive'
 require 'pangea/dashboards/library/log_windows'
 require 'pangea/dashboards/library/data_presence'
+require 'pangea/dashboards/library/status_overview'
 
 module Pangea
   module Dashboards
