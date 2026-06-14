@@ -83,8 +83,8 @@ module Pangea
 
     # The pleme-io fleet observability datasources (VictoriaMetrics + VictoriaLogs).
     # VictoriaMetrics IS Prometheus-wire-compatible → grafana type 'prometheus'.
-    # VictoriaLogs is its own plugin → grafana type 'VictoriaLogs' (LogsQL).
+    # VictoriaLogs is its own plugin → grafana type 'victoriametrics-logs-datasource' (LogsQL).
     Datasources.register('vm',    grafana_type: 'prometheus',   query_lang: :promql)
-    Datasources.register('vlogs', grafana_type: 'VictoriaLogs', query_lang: :logsql)
+    Datasources.register('vlogs', grafana_type: 'victoriametrics-logs-datasource', query_lang: :logsql)
   end
 end

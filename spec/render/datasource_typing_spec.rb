@@ -12,8 +12,8 @@ RSpec.describe Pangea::Dashboards::Datasources do
       expect(described_class.ref('vm')).to eq('type' => 'prometheus', 'uid' => 'vm')
     end
 
-    it 'types VictoriaLogs (vlogs) as VictoriaLogs — NOT prometheus' do
-      expect(described_class.ref('vlogs')).to eq('type' => 'VictoriaLogs', 'uid' => 'vlogs')
+    it 'types VictoriaLogs (vlogs) as victoriametrics-logs-datasource — NOT prometheus' do
+      expect(described_class.ref('vlogs')).to eq('type' => 'victoriametrics-logs-datasource', 'uid' => 'vlogs')
     end
 
     it 'passes template-variable datasources through (resolved by grafana at runtime)' do
@@ -72,7 +72,7 @@ RSpec.describe Pangea::Dashboards::Datasources do
       vm_t    = targets.find { |t| t['expr'].include?('rate(foo') }
       logs_t  = targets.find { |t| t['expr'].include?('| error') }
       expect(vm_t['datasource']).to eq('type' => 'prometheus', 'uid' => 'vm')
-      expect(logs_t['datasource']).to eq('type' => 'VictoriaLogs', 'uid' => 'vlogs')
+      expect(logs_t['datasource']).to eq('type' => 'victoriametrics-logs-datasource', 'uid' => 'vlogs')
     end
   end
 end
