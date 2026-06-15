@@ -37,6 +37,7 @@ require 'pangea/dashboards/library/by_phase_strip'
 require 'pangea/dashboards/library/allocatable_vs_requested_panel'
 require 'pangea/dashboards/library/capacity_headroom_stat'
 require 'pangea/dashboards/library/shadow_live_posture_row'
+require 'pangea/dashboards/library/breathability_row'
 
 # ── Wave 3/4: greenfield gaps + long-tail + security tier (P1/P2) ───────
 require 'pangea/dashboards/library/flux_reconcile_strip'

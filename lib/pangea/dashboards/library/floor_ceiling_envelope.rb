@@ -35,27 +35,44 @@ module Pangea
       # counters, so `or vector(0)` would be wrong (a real 0 floor is distinct
       # from "no series"). Hence presence: :continuous on every series.
       #
+      # ── The breathability overlay (optional `usage_metric:`) ────────────
+      # Pass `usage_metric:` (the workload's OBSERVED value gauge — e.g.
+      # `breathe_band_used`, which breathe exports for every band) and a fourth
+      # series U is drawn INSIDE the envelope: the real workload riding the band
+      # the controller carves around it. This turns "the limit sits in [floor,
+      # ceiling]" into the far more decision-relevant "breathe is holding the
+      # ACTUAL workload in its band" — used hugging the limit = about to grow,
+      # used near the floor = reclaimable headroom. The usage series shares the
+      # band's `dim` selector (it is the same breathe band identity), so the
+      # author supplies only the metric name. Omit it ⇒ the classic 3-series
+      # envelope, byte-unchanged.
+      #
       # ── Usage ───────────────────────────────────────────────────────────
       #   row 'Memory envelope' do
       #     Pangea::Dashboards::Library::FloorCeilingEnvelope.add(
       #       self, datasource: 'vm',
-      #       limit_metric:   'breathe_band_current_limit_bytes',
-      #       floor_metric:   'breathe_band_floor_bytes',
-      #       ceiling_metric: 'breathe_band_ceiling_bytes',
-      #       dim: { resource: 'memory' }, unit: 'bytes')
+      #       limit_metric:   'breathe_band_current_limit',
+      #       floor_metric:   'breathe_band_floor',
+      #       ceiling_metric: 'breathe_band_ceiling',
+      #       usage_metric:   'breathe_band_used',          # ← overlay the real workload
+      #       dim: { name: 'arc-runner', dim: 'memory' }, unit: 'bytes')
       #   end
       module FloorCeilingEnvelope
         # datasource:     (req) the metrics datasource
         # limit_metric:   (req) the current-value gauge metric (series A)
         # floor_metric:   (req) the lower-bound gauge metric (series B)
         # ceiling_metric: (req) the upper-bound gauge metric (series C)
-        # dim:            typed selector (Hash preferred) applied to all three
-        #                 series — the dimension the envelope is sliced on
+        # usage_metric:   (opt) the OBSERVED-value gauge (series U, drawn first/
+        #                 prominent) — the real workload riding inside the band
+        # dim:            typed selector (Hash preferred) applied to ALL series
+        #                 (incl. usage) — the dimension the envelope is sliced on
         # legend_labels:  the per-series legend suffix ('{{namespace}}/{{name}}'
         #                 by default — the breathe band identity)
+        # usage_legend:   the usage series label (default 'used')
         # unit:           Grafana unit (default 'bytes')
         # title:          panel title (default derived from limit_metric)
         def self.add(row, datasource:, limit_metric:, floor_metric:, ceiling_metric:, dim:,
+                     usage_metric: nil, usage_legend: 'used',
                      legend_labels: '{{namespace}}/{{name}}', unit: 'bytes', title: nil)
           validate!(datasource: datasource, limit_metric: limit_metric,
                     floor_metric: floor_metric, ceiling_metric: ceiling_metric)
@@ -64,12 +81,16 @@ module Pangea
           ttl    = title || default_title(limit_metric)
           # Resolve refs/exprs/legends OUTSIDE the panel block — the block is
           # instance_eval'd against the PanelBuilder, so module helpers
-          # (legend_for) aren't in scope there.
-          series = [
+          # (legend_for) aren't in scope there. Usage (U) leads when present so
+          # it reads as the foreground series riding inside the bounds.
+          spec = []
+          spec << ['U', usage_metric, usage_legend] unless blank?(usage_metric)
+          spec += [
             ['A', limit_metric,   'limit'],
             ['B', floor_metric,   'floor'],
             ['C', ceiling_metric, 'ceiling']
-          ].map do |ref, metric, label|
+          ]
+          series = spec.map do |ref, metric, label|
             [ref, "#{metric}#{braces}", legend_for(label, legend_labels)]
           end
           row.panel pid, kind: :timeseries, width: Theme.half, height: Theme::TS_H do

@@ -113,6 +113,38 @@ RSpec.describe Pangea::Dashboards::Library::FloorCeilingEnvelope do
     end
   end
 
+  describe 'breathability overlay — optional usage_metric' do
+    let(:built) do
+      row_with do |r|
+        Lib::FloorCeilingEnvelope.add(r, datasource: 'vm',
+          limit_metric:   'breathe_band_current_limit',
+          floor_metric:   'breathe_band_floor',
+          ceiling_metric: 'breathe_band_ceiling',
+          usage_metric:   'breathe_band_used',
+          dim: { name: 'arc-runner', dim: 'memory' }, legend_labels: '{{name}}')
+      end
+    end
+
+    it 'prepends the usage series U (the real workload riding inside the band)' do
+      p = built.panels.first
+      expect(p.queries.map(&:ref)).to eq(%w[U A B C])
+      expect(p.queries.first.expr).to eq('breathe_band_used{name="arc-runner",dim="memory"}')
+      expect(p.queries.map(&:legend_format)).to eq([
+        'used {{name}}', 'limit {{name}}', 'floor {{name}}', 'ceiling {{name}}'
+      ])
+      # usage shares the band dim selector + stays continuous (gauge, never floored).
+      expect(p.queries.map(&:presence)).to all(eq(:continuous))
+    end
+
+    it 'omitting usage_metric keeps the classic 3-series envelope (byte-unchanged)' do
+      plain = row_with do |r|
+        Lib::FloorCeilingEnvelope.add(r, datasource: 'vm',
+          limit_metric: 'a', floor_metric: 'b', ceiling_metric: 'c', dim: nil)
+      end
+      expect(plain.panels.first.queries.map(&:ref)).to eq(%w[A B C])
+    end
+  end
+
   describe 'validation' do
     it 'requires a datasource' do
       expect { row_with { |r| Lib::FloorCeilingEnvelope.add(r, datasource: nil,

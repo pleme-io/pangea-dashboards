@@ -66,6 +66,7 @@ module Pangea
           Entry.new(name: 'AllocatableVsRequestedPanel', entry: :add,    layer: :primitive_panel, tier: 'platform', priority: 'P2'),
           Entry.new(name: 'CapacityHeadroomStat',        entry: :add,    layer: :primitive_panel, tier: 'infra',    priority: 'P2'),
           Entry.new(name: 'ShadowLivePostureRow',        entry: :add,    layer: :composite_row,   tier: 'platform', priority: 'P2'),
+          Entry.new(name: 'BreathabilityRow',            entry: :add,    layer: :composite_row,   tier: 'platform', priority: 'P1'),
           # ── Wave 3/4 ──
           Entry.new(name: 'FluxReconcileStrip',          entry: :add,   layer: :overview_strip,       tier: 'platform', priority: 'P2'),
           Entry.new(name: 'WebhookLatencyHeatmap',       entry: :add,   layer: :primitive_panel,      tier: 'platform', priority: 'P2'),
