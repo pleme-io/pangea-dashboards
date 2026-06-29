@@ -119,6 +119,10 @@ require 'pangea/dashboards/library/savings_realized_strip'
 require 'pangea/dashboards/library/cost_attribution_row'
 require 'pangea/dashboards/library/saturation_grid_panel'
 
+# ── Wave 7: cross-domain meta boards (compose other domains' strips) ─────
+require 'pangea/dashboards/library/nervous_system_self_health_board'
+require 'pangea/dashboards/library/security_signal_wall'
+
 # ── the self-describing catalog (loaded last; sees every component) ──────
 require 'pangea/dashboards/library/catalog'
 

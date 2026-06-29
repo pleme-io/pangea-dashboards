@@ -141,6 +141,9 @@ module Pangea
           Entry.new(name: 'SavingsRealizedStrip',          entry: :add,      layer: :overview_strip,       tier: 'business', priority: 'P2'),
           Entry.new(name: 'CostAttributionRow',            entry: :add,      layer: :composite_row,        tier: 'business', priority: 'P2'),
           Entry.new(name: 'SaturationGridPanel',           entry: :add,      layer: :primitive_panel,      tier: 'infra',    priority: 'P2'),
+          # ── Wave 7: cross-domain meta boards ──
+          Entry.new(name: 'NervousSystemSelfHealthBoard',  entry: :build,    layer: :full_dashboard_mixin, tier: 'platform', priority: 'P1'),
+          Entry.new(name: 'SecuritySignalWall',            entry: :build,    layer: :full_dashboard_mixin, tier: 'security', priority: 'P1'),
         ].freeze
 
         module_function
