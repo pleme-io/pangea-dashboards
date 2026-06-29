@@ -77,7 +77,11 @@ module Pangea
           Entry.new(name: 'ControllerRuntimeDashboard',  entry: :build, layer: :full_dashboard_mixin, tier: 'platform', priority: 'P1'),
           Entry.new(name: 'LogExplorerDashboard',        entry: :build, layer: :full_dashboard_mixin, tier: 'platform', priority: 'P2'),
           Entry.new(name: 'Alerts::WorkloadBaseline',            entry: :add,   layer: :full_dashboard_mixin, tier: 'platform', priority: 'P1'),
-          Entry.new(name: 'Alerts::GatewayLogForwardingTarget', entry: :build, layer: :full_dashboard_mixin, tier: 'security', priority: 'P2')
+          Entry.new(name: 'Alerts::GatewayLogForwardingTarget', entry: :build, layer: :full_dashboard_mixin, tier: 'security', priority: 'P2'),
+          # ── Wave 5: enjulho catalog — homeostasis/meta tier (T-LIVE) ──
+          Entry.new(name: 'BandDeviationHeatmap',     entry: :add,   layer: :primitive_panel,      tier: 'platform', priority: 'P1'),
+          Entry.new(name: 'DeviationRankTable',       entry: :add,   layer: :primitive_panel,      tier: 'platform', priority: 'P1'),
+          Entry.new(name: 'HomeostasisControlBoard',  entry: :build, layer: :full_dashboard_mixin, tier: 'platform', priority: 'P1')
         ].freeze
 
         module_function

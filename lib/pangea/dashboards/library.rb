@@ -49,9 +49,14 @@ require 'pangea/dashboards/library/quota_pct_samba_row'
 require 'pangea/dashboards/library/alerts/workload_baseline'
 require 'pangea/dashboards/library/alerts/gateway_log_forwarding_target'
 
+# ── Wave 5: enjulho catalog — homeostasis/meta blocks (T-LIVE tier) ──────
+require 'pangea/dashboards/library/band_deviation_heatmap'
+require 'pangea/dashboards/library/deviation_rank_table'
+
 # ── Wave 4 capstones: the full-dashboard mixins (compose the above) ──────
 require 'pangea/dashboards/library/controller_runtime_dashboard'
 require 'pangea/dashboards/library/log_explorer_dashboard'
+require 'pangea/dashboards/library/homeostasis_control_board'
 
 # ── the self-describing catalog (loaded last; sees every component) ──────
 require 'pangea/dashboards/library/catalog'
