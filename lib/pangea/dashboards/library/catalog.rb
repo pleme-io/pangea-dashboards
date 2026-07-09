@@ -144,6 +144,8 @@ module Pangea
           # ── Wave 7: cross-domain meta boards ──
           Entry.new(name: 'NervousSystemSelfHealthBoard',  entry: :build,    layer: :full_dashboard_mixin, tier: 'platform', priority: 'P1'),
           Entry.new(name: 'SecuritySignalWall',            entry: :build,    layer: :full_dashboard_mixin, tier: 'security', priority: 'P1'),
+          # ── Wave 8: Path-A typed ClickHouse SQL analytics mixin ──
+          Entry.new(name: 'ClickHouseAnalyticsBoard',      entry: :build,    layer: :full_dashboard_mixin, tier: 'data',     priority: 'P2'),
         ].freeze
 
         module_function

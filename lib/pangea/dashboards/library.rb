@@ -123,6 +123,9 @@ require 'pangea/dashboards/library/saturation_grid_panel'
 require 'pangea/dashboards/library/nervous_system_self_health_board'
 require 'pangea/dashboards/library/security_signal_wall'
 
+# ── Wave 8: Path-A typed ClickHouse SQL analytics mixin (data tier) ──────
+require 'pangea/dashboards/library/clickhouse_analytics_board'
+
 # ── the self-describing catalog (loaded last; sees every component) ──────
 require 'pangea/dashboards/library/catalog'
 

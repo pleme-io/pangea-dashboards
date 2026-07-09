@@ -120,6 +120,24 @@ module Pangea
           # Type the datasource from the registry (not hardcoded 'prometheus')
           # + reject a query whose language mismatches its datasource.
           Datasources.validate_query!(query.expr, query.datasource_uid)
+
+          # SQL-wire datasources (ClickHouse …) take a `rawSql` target, not the
+          # PromQL/LogsQL `expr` field. The Grafana ClickHouse plugin reads
+          # `rawSql` + `queryType`/`editorType`; `expr` would be ignored and the
+          # panel would render empty. Emit the SQL arm for any :sql datasource.
+          if Datasources.query_lang(query.datasource_uid) == :sql
+            h = {
+              'refId'      => query.ref,
+              'rawSql'     => query.expr,
+              'datasource' => Datasources.ref(query.datasource_uid),
+              'queryType'  => 'table',
+              'editorType' => 'sql',
+              'format'     => 1
+            }
+            h['hide'] = query.hide if query.hide
+            return h
+          end
+
           h = {
             'refId'    => query.ref,
             'expr'     => query.expr,

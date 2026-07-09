@@ -21,7 +21,9 @@ module Pangea
     class Datasource < Dry::Struct
       attribute :uid,          Types::Strict::String
       attribute :grafana_type, Types::Strict::String           # Grafana datasource plugin type
-      attribute :query_lang,   Types::Strict::Symbol.enum(:promql, :logsql)
+      # :promql (metrics) / :logsql (VictoriaLogs) / :sql (ClickHouse & other
+      # SQL-wire datasources — rendered through the rawSql target arm, not expr).
+      attribute :query_lang,   Types::Strict::Symbol.enum(:promql, :logsql, :sql)
     end
 
     module Datasources
@@ -87,6 +89,9 @@ module Pangea
       def validate_query!(expr, uid)
         return if variable?(uid)
         ds = registry[uid] or return
+        # :sql datasources (ClickHouse …) carry a raw SQL string — the
+        # PromQL/LogsQL classifier does not apply, so never mismatch-raise.
+        return if ds.query_lang == :sql
         if ds.query_lang == :promql && logsql?(expr)
           raise DatasourceLanguageMismatchError,
                 "query targets PromQL datasource #{uid.inspect} but the expr is LogsQL: #{expr.inspect}"
@@ -103,5 +108,10 @@ module Pangea
     # VictoriaLogs is its own plugin → grafana type 'victoriametrics-logs-datasource' (LogsQL).
     Datasources.register('vm',    grafana_type: 'prometheus',   query_lang: :promql)
     Datasources.register('vlogs', grafana_type: 'victoriametrics-logs-datasource', query_lang: :logsql)
+    # ClickHouse analytics datasource (Path-A typed SQL mixin). The Grafana
+    # ClickHouse plugin takes a `rawSql` target (see Render::Grafana#render_query),
+    # so this datasource's language is :sql — the PromQL/LogsQL classifier is
+    # bypassed for it, and panels render their SQL string verbatim.
+    Datasources.register('clickhouse', grafana_type: 'grafana-clickhouse-datasource', query_lang: :sql)
   end
 end
