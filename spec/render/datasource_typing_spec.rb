@@ -43,6 +43,28 @@ RSpec.describe Pangea::Dashboards::Datasources do
     it 'allows a PromQL query on the metrics datasource' do
       expect { described_class.validate_query!('sum by (controller) (rate(x[5m]))', 'vm') }.not_to raise_error
     end
+
+    # Regression: a PromQL label-regex alternation (outcome=~"denied|error") carries
+    # a `|error` substring that the LogsQL pipe classifier false-matched, so
+    # AuthMethodHealth / SecretsPlatformOverview (which emit exactly this against the
+    # vm PromQL datasource) raised DatasourceLanguageMismatchError at render. A `|`
+    # INSIDE a quoted string is never a LogsQL pipe operator.
+    it 'does NOT mistake a PromQL label-regex alternation for LogsQL (the denied|error bug)' do
+      expect { described_class.validate_query!('sum(rate(auth_total{outcome=~"denied|error"}[5m]))', 'vm') }
+        .not_to raise_error
+    end
+
+    it 'classifies a denied|error label-regex expr as promql, not logsql' do
+      expr = 'sum(rate(auth_total{outcome=~"denied|error"}[5m]))'
+      expect(described_class.logsql?(expr)).to be(false)
+      expect(described_class.promql?(expr)).to be(true)
+    end
+
+    it 'still catches a real LogsQL pipe even when a quoted alternation is present' do
+      # {app="a|b"} is a quoted alternation (inert); `| stats` is a genuine LogsQL pipe.
+      expect { described_class.validate_query!('{app="a|b"} | stats count()', 'vm') }
+        .to raise_error(Pangea::Dashboards::DatasourceLanguageMismatchError, /LogsQL/)
+    end
   end
 
   describe 'end-to-end: a rendered dashboard types its panels from the registry' do

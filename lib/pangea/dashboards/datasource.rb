@@ -61,12 +61,24 @@ module Pangea
       LOGSQL_SELECTOR_PIPE = /\}\s*\|/
       PROMQL_FUNC = /\b(rate|irate|increase|histogram_quantile|sum\s+by|avg\s+by|max\s+by|min\s+by|count\s+by)\b|\bby\s*\(/
 
+      # A `|` inside a quoted string is PromQL regex alternation — a label matcher
+      # like outcome=~"denied|error" — NEVER a LogsQL pipe operator (LogsQL pipes
+      # live OUTSIDE string literals). Blank out every quoted literal ("...", '...',
+      # `...`) before classifying so a label-regex alternation can't masquerade as a
+      # `| error` / `| stats` LogsQL pipe. Without this, AuthMethodHealth /
+      # SecretsPlatformOverview — which emit outcome=~"denied|error" against the vm
+      # PromQL datasource — false-tripped the LogsQL branch and raised at render.
+      def strip_string_literals(expr)
+        expr.gsub(/"[^"]*"/, '""').gsub(/'[^']*'/, "''").gsub(/`[^`]*`/, '``')
+      end
+
       def logsql?(expr)
-        expr.match?(LOGSQL_PIPE) || expr.match?(LOGSQL_SELECTOR_PIPE)
+        stripped = strip_string_literals(expr)
+        stripped.match?(LOGSQL_PIPE) || stripped.match?(LOGSQL_SELECTOR_PIPE)
       end
 
       def promql?(expr)
-        expr.match?(PROMQL_FUNC)
+        strip_string_literals(expr).match?(PROMQL_FUNC)
       end
 
       # Raise if a query's language is incompatible with its (registered)
